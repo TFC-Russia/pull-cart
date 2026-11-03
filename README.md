@@ -101,6 +101,22 @@ be used, so change the mod's recipe rather than adding a second one for the same
 
 JDK 17. The jar is in `build/libs/`; it is needed on both the server and the client.
 
+## Releasing
+
+Write the version's entry in `CHANGELOG.md`, commit it, then from the release branch:
+
+```
+bash scripts/release.sh 1.0.2
+```
+
+The script sets `mod_version` to `1.0.2+<game version>`, commits it, pushes the branch and creates the
+GitHub release with the changelog entry as its notes. The Publish workflow then builds the jar and
+attaches it. `--dry-run` shows what it would do; `--prerelease` marks it a beta.
+
+Uploading to CurseForge and Modrinth waits on `curseforge_id` and `modrinth_id` in `gradle.properties`
+and on the `CURSEFORGE_TOKEN` and `MODRINTH_TOKEN` secrets. Until those are set the jar still reaches
+the GitHub release.
+
 ## License
 
 GPL-2.0, the license of the original (see `LICENSE`).
