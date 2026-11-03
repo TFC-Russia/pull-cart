@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 
 /**
  * A wooden cart you pull by hand. A Minecraft 1.20.1 port of MC+ Cart and MC+ Wheel by andykuo1 (GPL-2.0,
- * github.com/andykuo1/mcplus-mods), the cart TFC.SU played with on 1.7.10.
+ * github.com/andykuo1/mcplus-mods), the cart we used on a 1.7.10 server.
  */
 @Mod(PullCartMod.MOD_ID)
 public final class PullCartMod {
