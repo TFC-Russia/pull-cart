@@ -1,13 +1,18 @@
 name: Publish
 
-# Sends a published GitHub release out to CurseForge and Modrinth. release.yml
-# creates that release from a pushed tag, so the two run one after the other:
-# tag -> release -> publish.
+# Builds the jar of the commit a release points at, attaches it to that release,
+# and sends it on to CurseForge and Modrinth. scripts/release.sh creates the
+# release, so a release is one command: script -> release -> this.
 #
-# It stays quiet until the mod actually has pages: set curseforge_id and
-# modrinth_id in gradle.properties and add CURSEFORGE_TOKEN and MODRINTH_TOKEN
-# as repository secrets. With none of them set the job builds the jar, says
-# nothing is configured and stops green.
+# The jar reaches the GitHub release either way. Uploading to the mod sites waits
+# until the mod has pages: set curseforge_id and modrinth_id in gradle.properties
+# and add CURSEFORGE_TOKEN and MODRINTH_TOKEN as repository secrets. With neither
+# id set the job still builds, attaches the jar, says nothing else is configured
+# and stops green.
+#
+# Note that a release created by a workflow with GITHUB_TOKEN would not start this
+# one: GitHub does not fire workflows on events its own token caused. That is why
+# the release comes from the script, under your account, and not from CI.
 #
 # Run it by hand (Actions > Publish > Run workflow) to only build the jar.
 #
@@ -74,10 +79,19 @@ jobs:
           name: ${{ steps.props.outputs.mod_id }}-${{ steps.props.outputs.mod_version }}
           path: build/libs/${{ steps.props.outputs.mod_id }}-*.jar
 
+      # The jar belongs on the release whether or not the mod has pages anywhere,
+      # so this does not wait on the ids the way the step below does
+      - name: Attach the jar to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MOD_ID: ${{ steps.props.outputs.mod_id }}
+        run: gh release upload "$GITHUB_REF_NAME" build/libs/"$MOD_ID"-*.jar --clobber
+
       - name: Say that nothing is configured to publish to
         if: github.event_name == 'release' && steps.props.outputs.curseforge_id == '' && steps.props.outputs.modrinth_id == ''
         run: |
-          echo "::notice::No curseforge_id or modrinth_id in gradle.properties, so the jar was only built. The GitHub release already has it from release.yml."
+          echo "::notice::No curseforge_id or modrinth_id in gradle.properties, so the jar went to the GitHub release and nowhere else."
 
       - name: Upload to CurseForge and Modrinth
         if: github.event_name == 'release' && (steps.props.outputs.curseforge_id != '' || steps.props.outputs.modrinth_id != '')
@@ -87,7 +101,8 @@ jobs:
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
           modrinth-id: ${{ steps.props.outputs.modrinth_id }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # No github-token on purpose: the step above owns the release asset, and
+          # letting both attach the same file is how you get a duplicate or a clash
           files: build/libs/${{ steps.props.outputs.mod_id }}-*.jar
           name: ${{ steps.props.outputs.mod_name }} ${{ steps.props.outputs.mod_version }}
           version: ${{ steps.props.outputs.mod_version }}
@@ -96,7 +111,10 @@ jobs:
           loaders: ${{ steps.props.outputs.loader }}
           game-versions: ${{ steps.props.outputs.minecraft_version }}
           java: ${{ steps.props.outputs.java }}
-          # Dependencies are named per site, so a mod that needs others says so here:
+          # Dependencies are named per site, so a mod that needs others says so here.
+          # Use slugs, not numeric project ids: mc-publish looks an id up through the
+          # CurseForge Core API and drops the dependency without a word when that
+          # lookup fails, which is what happened to TerraFirmaCraft in another mod here.
           # dependencies: |
-          #   tfc(required){curseforge:302973}{modrinth:terrafirmacraft}
-          #   curios(required){curseforge:309927}{modrinth:curios}
+          #   tfc(required){curseforge:terrafirmacraft}{modrinth:terrafirmacraft}
+          #   curios(required){curseforge:curios}{modrinth:curios}
