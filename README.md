@@ -1,5 +1,7 @@
 # Pull Cart (NeoForge 1.21.1)
 
+<img src="docs/avatar.png" alt="" width="120" align="right">
+
 A wooden cart you pull by hand: the cart TFC.SU played with on 1.7.10, which was **MC+ Cart** by andykuo1. This is a
 Minecraft 1.21.1 NeoForge port of [MC+ Cart, MC+ Wheel and MC+ Loom](https://github.com/andykuo1/mcplus-mods) (GPL-2.0),
 so it is GPL-2.0 too (see `LICENSE`). The model geometry and textures are MC+ Cart's and MC+ Loom's.
