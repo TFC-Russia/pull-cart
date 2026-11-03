@@ -7,6 +7,12 @@ stops the release, on purpose: the note is written before the release, not after
 Each heading is the mod's own version without the `+<game version>` suffix, so one entry covers both
 game lines.
 
+## 1.0.2
+
+- The first release on CurseForge. Nothing in the mod itself changed: the cart, the loom and the
+  TerraFirmaCraft integration work exactly as in 1.0.1.
+- The description shown in the mod list no longer names the server the cart came from.
+
 ## 1.0.1
 
 - The cart breaks the way a minecart or boat does. A hit no longer destroys it outright: the damage
