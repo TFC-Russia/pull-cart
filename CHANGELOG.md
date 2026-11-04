@@ -7,6 +7,12 @@ stops the release, on purpose: the note is written before the release, not after
 Each heading is the mod's own version without the `+<game version>` suffix, so one entry covers both
 game lines.
 
+## 1.0.3
+
+- A jukebox on the cart sends up notes while its disc plays, one a second, the way a jukebox block
+  does.
+- The mod list links to the mod's CurseForge page and its issue tracker.
+
 ## 1.0.2
 
 - The first release on CurseForge. Nothing in the mod itself changed: the cart, the loom and the
