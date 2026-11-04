@@ -7,6 +7,11 @@ stops the release, on purpose: the note is written before the release, not after
 Each heading is the mod's own version without the `+<game version>` suffix, so one entry covers both
 game lines.
 
+## 1.0.4
+
+- The mod has its own creative tab, Pull Cart, with the cart, the wheel and the loom. They are in the
+  vanilla tabs as well, where they were before.
+
 ## 1.0.3
 
 - A jukebox on the cart sends up notes while its disc plays, one a second, the way a jukebox block
