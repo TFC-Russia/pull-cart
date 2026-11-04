@@ -1,6 +1,7 @@
 modLoader="javafml" #mandatory
 loaderVersion="${loader_version_range}" #mandatory
 license="${mod_license}"
+issueTrackerURL="https://github.com/TFC-Russia/pull-cart/issues" #optional
 
 [[mods]] #mandatory
 modId="${mod_id}" #mandatory
@@ -8,6 +9,7 @@ version="${mod_version}" #mandatory
 displayName="${mod_name}" #mandatory
 authors="${mod_authors}" #optional
 credits="MC+ Cart, MC+ Wheel and MC+ Loom by andykuo1 (GPL-2.0): https://github.com/andykuo1/mcplus-mods"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/pull-cart-loom-ported" #optional
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]] #optional
