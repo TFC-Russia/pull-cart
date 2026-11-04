@@ -183,6 +183,10 @@ public class CartEntity extends Entity {
             if (entityData.get(LIT) && random.nextInt(8) == 0) {
                 level().addParticle(ParticleTypes.SMOKE, getX(), getY() + 1.3, getZ(), 0, 0.02, 0);
             }
+            // A note a second over the playing jukebox, as over the block (0.2 above its top).
+            if (entityData.get(PLAYING) && tickCount % 20 == 0) {
+                level().addParticle(ParticleTypes.NOTE, getX(), getY() + 1.45, getZ(), random.nextInt(4) / 24.0, 0, 0);
+            }
             return;
         }
         if (isUnderWater()) {
