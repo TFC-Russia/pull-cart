@@ -8,6 +8,8 @@ so it is GPL-2.0 too (see `LICENSE`). The model geometry and textures are MC+ Ca
 
 On CurseForge: [Pull Cart + Loom Ported](https://www.curseforge.com/minecraft/mc-mods/pull-cart-loom-ported).
 
+![Five carts carrying a crafting table, a burning furnace, a chest, a playing jukebox and a pig](docs/carts.webp)
+
 ## How it works
 
 | Do | What happens |
