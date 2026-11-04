@@ -22,6 +22,8 @@ The project's other fields, which are also web-only:
 A wooden cart you pull behind you by hand. Load a chest, a furnace or a small animal onto it and
 walk — no rails, no minecart, no track to lay first.
 
+![Five carts carrying a crafting table, a burning furnace, a chest, a playing jukebox and a pig](https://raw.githubusercontent.com/TFC-Russia/pull-cart/b29f341c03d350facaa400ab9da4fae5d6ed365e/docs/carts.webp)
+
 **This is a port, not my mod.** The cart, the wheel and the loom are **MC+ Cart**, **MC+ Wheel** and
 **MC+ Loom** by **andykuo1**, written for Minecraft 1.7.10. The original source is at
 [github.com/andykuo1/mcplus-mods](https://github.com/andykuo1/mcplus-mods) under the GPL-2.0, and
