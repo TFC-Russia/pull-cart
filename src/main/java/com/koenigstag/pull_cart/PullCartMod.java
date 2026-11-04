@@ -2,12 +2,16 @@ package com.koenigstag.pull_cart;
 
 import com.koenigstag.pull_cart.client.PullCartClient;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -53,6 +57,8 @@ public final class PullCartMod {
             DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS =
             DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MOD_ID);
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
+            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
 
     public static final RegistryObject<EntityType<CartEntity>> CART = ENTITY_TYPES.register("wooden_cart",
             () -> EntityType.Builder.<CartEntity>of(CartEntity::new, MobCategory.MISC)
@@ -90,6 +96,18 @@ public final class PullCartMod {
     public static final RegistryObject<RecipeSerializer<SpindleRecipe>> SPINDLE_SERIALIZER =
             RECIPE_SERIALIZERS.register("spindle", SpindleRecipe.Serializer::new);
 
+    /** The mod's own tab with everything it adds; the items are in the vanilla tabs too. */
+    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS.register(MOD_ID,
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup." + MOD_ID))
+                    .icon(() -> new ItemStack(CART_ITEM.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(CART_ITEM.get());
+                        output.accept(WHEEL.get());
+                        output.accept(LOOM_ITEM.get());
+                    })
+                    .build());
+
     public PullCartMod(FMLJavaModLoadingContext context) {
         IEventBus modBus = context.getModEventBus();
         ENTITY_TYPES.register(modBus);
@@ -99,6 +117,7 @@ public final class PullCartMod {
         ITEMS.register(modBus);
         RECIPE_TYPES.register(modBus);
         RECIPE_SERIALIZERS.register(modBus);
+        CREATIVE_TABS.register(modBus);
         modBus.addListener(PullCartMod::onCreativeTabs);
         context.registerConfig(ModConfig.Type.COMMON, PullCartConfig.SPEC);
         if (FMLEnvironment.dist == Dist.CLIENT) {
