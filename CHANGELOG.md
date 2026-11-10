@@ -7,6 +7,11 @@ stops the release, on purpose: the note is written before the release, not after
 Each heading is the mod's own version without the `+<game version>` suffix, so one entry covers both
 game lines.
 
+## 1.0.5
+
+- Other mods can reach a chest on the cart through Forge's item handler, the way they reach a chest
+  block, while nobody pulls the cart. A cart being pulled keeps its chest to itself.
+
 ## 1.0.4
 
 - The mod has its own creative tab, Pull Cart, with the cart, the wheel and the loom. They are in the

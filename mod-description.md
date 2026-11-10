@@ -45,7 +45,8 @@ this port is GPL-2.0 for that reason. The model geometry and the textures are an
 The cart lets go when it falls more than 6 blocks behind, and it breaks under water — both as the
 original did. While a jukebox on it is playing, it stays put.
 
-Any chest or crafting table works, TerraFirmaCraft's wooden ones included.
+Any chest or crafting table works, TerraFirmaCraft's wooden ones included. Other mods can reach a chest
+on a cart that nobody is pulling, the way they reach a chest block.
 
 ## Crafting
 
