@@ -2,6 +2,7 @@ package com.koenigstag.pull_cart;
 
 import com.koenigstag.pull_cart.compat.TfcWeight;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -35,6 +36,11 @@ import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 
@@ -48,6 +54,7 @@ import javax.annotation.Nullable;
  * <li>Hit it a few times to break it, as a minecart or boat (it drops itself and what it carries); Shift + hit
  * takes the block off.</li>
  * <li>Under water it breaks. While a disc plays, it stays where it is.</li>
+ * <li>Other mods reach a chest on it through Forge's item handler, while nobody pulls it.</li>
  * </ul>
  * With TerraFirmaCraft, a chest holding too many huge, very heavy items can't be pulled.
  */
@@ -64,6 +71,8 @@ public class CartEntity extends Entity {
             SynchedEntityData.defineId(CartEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DAMAGE =
             SynchedEntityData.defineId(CartEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> PULLED =
+            SynchedEntityData.defineId(CartEntity.class, EntityDataSerializers.BOOLEAN);
 
     /** As a minecart or boat: a hit adds ten times its damage, it heals 1 a tick, and breaks beyond this. */
     private static final float BREAK_DAMAGE = 40;
@@ -80,6 +89,28 @@ public class CartEntity extends Entity {
             return isNear(player) && cargo() == CargoType.CHEST;
         }
     };
+    /** The chest for other mods, through Forge's item handler: shut while the chest is gone or someone pulls the cart. */
+    private final LazyOptional<IItemHandler> chestHandler = LazyOptional.of(() -> new InvWrapper(chest) {
+        @Override
+        public int getSlots() {
+            return chestOpen() ? super.getSlots() : 0;
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return chestOpen() ? super.getStackInSlot(slot) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return chestOpen() ? super.insertItem(slot, stack, simulate) : stack;
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return chestOpen() ? super.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        }
+    });
     private final CartFurnace furnace = new CartFurnace(this);
     private ItemStack record = ItemStack.EMPTY;
     private int songTicks;
@@ -111,6 +142,36 @@ public class CartEntity extends Entity {
         entityData.define(HURT_TIME, 0);
         entityData.define(HURT_DIR, 1);
         entityData.define(DAMAGE, 0f);
+        entityData.define(PULLED, false);
+    }
+
+    /** Whether someone pulls it now; known to clients too. */
+    public boolean isPulled() {
+        return entityData.get(PULLED);
+    }
+
+    private void setPuller(@Nullable Player player) {
+        puller = player;
+        entityData.set(PULLED, player != null);
+    }
+
+    private boolean chestOpen() {
+        return isAlive() && cargo() == CargoType.CHEST && !isPulled();
+    }
+
+    /** A chest on the cart, while nobody pulls it: other mods' machines and shops can reach it then. */
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
+        if (capability == ForgeCapabilities.ITEM_HANDLER && chestOpen()) {
+            return chestHandler.cast();
+        }
+        return super.getCapability(capability, side);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        chestHandler.invalidate();
     }
 
     /** The block it carries, empty for none. */
@@ -235,7 +296,7 @@ public class CartEntity extends Entity {
             return null;
         }
         if (!puller.isAlive() || puller.level() != level() || puller.isSpectator()) {
-            puller = null;
+            setPuller(null);
             return null;
         }
         if (puller.distanceTo(this) > PullCartConfig.LET_GO_DISTANCE.get()) {
@@ -275,7 +336,7 @@ public class CartEntity extends Entity {
             puller.displayClientMessage(message, true);
             level().playSound(null, getX(), getY(), getZ(), SoundEvents.LEASH_KNOT_BREAK, SoundSource.NEUTRAL, 1f, 1f);
         }
-        puller = null;
+        setPuller(null);
     }
 
     // ------------------------------------------------------------------------------------------------- interaction
@@ -328,9 +389,9 @@ public class CartEntity extends Entity {
         // One cart per player.
         for (CartEntity other : level().getEntitiesOfClass(CartEntity.class, player.getBoundingBox().inflate(32),
                 cart -> cart != this && cart.puller == player)) {
-            other.puller = null;
+            other.setPuller(null);
         }
-        puller = player;
+        setPuller(player);
         player.displayClientMessage(Component.translatable("message.pull_cart.hitched"), true);
         level().playSound(null, getX(), getY(), getZ(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.NEUTRAL, 1f, 1f);
     }
@@ -429,7 +490,7 @@ public class CartEntity extends Entity {
         if (dropSelf) {
             spawnAtLocation(PullCartMod.CART_ITEM.get());
         }
-        puller = null;
+        setPuller(null);
         discard();
     }
 

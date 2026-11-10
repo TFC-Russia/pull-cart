@@ -26,6 +26,9 @@ On CurseForge: [Pull Cart + Loom Ported](https://www.curseforge.com/minecraft/mc
 - It lets go when it falls more than 6 blocks behind (stuck), and it breaks under water, as MC+ Cart's did.
 - While the jukebox plays, the cart stays where it is.
 - Any chest or crafting table works, TerraFirmaCraft's wooden ones included.
+- Other mods reach a chest on the cart through Forge's item handler while nobody pulls the cart: a Merchant Stalls
+  warehouse sells from a cart parked in its reach, for one. `isPulled()` on the cart tells whether someone pulls it,
+  on the client too.
 
 ## Wooden Loom
 
